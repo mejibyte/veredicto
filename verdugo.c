@@ -12,9 +12,7 @@
 enum { RET_ACCEPTED, RET_TIMELIMIT_EXCEEDED, RET_RUNTIME_ERROR, RET_WRONG_ANSWER,
        RET_PRESENTATION_ERROR, RET_COMPILE_ERROR, RET_INTERNAL_ERROR };
 
-char input_file[MAXPATHLEN], output_file[MAXPATHLEN];
-
-char buffer[MAXPATHLEN];
+char buffer[MAXPATHLEN], executable_name[MAXPATHLEN], output_file[MAXPATHLEN];
 int timelimit = 5;
 
 void print_exit_message(int ret_code){
@@ -65,11 +63,19 @@ int main(int argc, char * argv[]){
       break;
     }
   }
+  if (argc - optind < 3){
+    fprintf(stderr, "FATAL ERROR: wrong number of parameters.\n");
+    usage(argc, argv);
+    exit(RET_INTERNAL_ERROR);
+  }
 
   argc -= optind;
   argv += optind;
 
-  sprintf(buffer, "gcc -O1 %s", argv[2]);
+  sprintf(executable_name, "a%d.out", getpid());
+  sprintf(output_file, "output%d.tmp", getpid());
+
+  sprintf(buffer, "gcc -O1 %s -o %s", argv[2], executable_name);
   ret = system(buffer);
   if (ret == -1){
     fprintf(stderr, "FATAL ERROR: Cannot invoke gcc compiler. Panic!\n");
@@ -81,7 +87,7 @@ int main(int argc, char * argv[]){
     exit(RET_COMPILE_ERROR);
   }
 
-  sprintf(buffer, "./jaula -t %d %s %s %s > /dev/null 2> /dev/null", timelimit, argv[0], "output.tmp", "a.out");
+  sprintf(buffer, "./jaula -t %d %s %s %s > /dev/null 2> /dev/null", timelimit, argv[0], output_file, executable_name);
   ret = system(buffer);
 
   if (ret == -1){
@@ -92,15 +98,19 @@ int main(int argc, char * argv[]){
   ret = WEXITSTATUS(ret);
   if (ret == RET_TIMELIMIT_EXCEEDED){
     print_exit_message(RET_TIMELIMIT_EXCEEDED);
+    remove(output_file);
+    remove(executable_name);
     exit(RET_TIMELIMIT_EXCEEDED);
   }
 
   if (ret == RET_RUNTIME_ERROR){
     print_exit_message(RET_RUNTIME_ERROR);
+    remove(output_file);
+    remove(executable_name);
     exit(RET_RUNTIME_ERROR);
   }
 
-  sprintf(buffer, "diff %s %s\n", argv[1], "output.tmp");
+  sprintf(buffer, "diff %s %s\n", argv[1], output_file);
   ret = system(buffer);
   if (ret == -1){
     fprintf(stderr, "FATAL ERROR: Cannot compare files. Panic!\n");
@@ -109,11 +119,13 @@ int main(int argc, char * argv[]){
   ret = WEXITSTATUS(ret);
   if(ret == 0){
     print_exit_message(RET_ACCEPTED);
+    remove(output_file);
+    remove(executable_name);
     exit(RET_ACCEPTED);
   }
 
 
-  sprintf(buffer, "diff -q -i -b -B -w %s %s\n", argv[1], "output.tmp");
+  sprintf(buffer, "diff -q -i -b -B -w %s %s\n", argv[1], output_file);
   ret = system(buffer);
 
   if (ret == -1){
@@ -123,9 +135,13 @@ int main(int argc, char * argv[]){
   ret = WEXITSTATUS(ret);
   if(ret == 0){
     print_exit_message(RET_PRESENTATION_ERROR);
+    remove(output_file);
+    remove(executable_name);
     exit(RET_PRESENTATION_ERROR);
   }
 
   print_exit_message(RET_WRONG_ANSWER);
+  remove(output_file);
+  remove(executable_name);
   exit(RET_WRONG_ANSWER);
 }
