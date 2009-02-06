@@ -1,6 +1,10 @@
 #include <stdio.h>
 
 int main(){
-  for (;; puts("I'm eating you harddrive\n"));
+  char c;
+  while ((c = getchar()) != EOF){
+    if (!isspace(c)) putchar(c + 1);
+    else putchar(c);
+  }
   return 0;
 }

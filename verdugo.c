@@ -110,7 +110,7 @@ int main(int argc, char * argv[]){
     exit(RET_RUNTIME_ERROR);
   }
 
-  sprintf(buffer, "diff %s %s\n", argv[1], output_file);
+  sprintf(buffer, "diff %s %s > /dev/null\n", argv[1], output_file);
   ret = system(buffer);
   if (ret == -1){
     fprintf(stderr, "FATAL ERROR: Cannot compare files. Panic!\n");
@@ -125,7 +125,7 @@ int main(int argc, char * argv[]){
   }
 
 
-  sprintf(buffer, "diff -q -i -b -B -w %s %s\n", argv[1], output_file);
+  sprintf(buffer, "diff -q -i -b -B -w %s %s > /dev/null\n", argv[1], output_file);
   ret = system(buffer);
 
   if (ret == -1){
