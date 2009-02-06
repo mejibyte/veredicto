@@ -75,17 +75,21 @@ int main(int argc, char * argv[]){
     fprintf(stderr, "FATAL ERROR: Cannot invoke gcc compiler. Panic!\n");
     exit(RET_INTERNAL_ERROR);
   }
+  ret = WEXITSTATUS(ret);
   if (ret != 0){
     print_exit_message(RET_COMPILE_ERROR);
     exit(RET_COMPILE_ERROR);
   }
 
-  sprintf(buffer, "./jaula -t %d %s %s %s", timelimit, argv[0], "output.tmp", "a.out");
+  sprintf(buffer, "./jaula -t %d %s %s %s > /dev/null 2> /dev/null", timelimit, argv[0], "output.tmp", "a.out");
   ret = system(buffer);
+
   if (ret == -1){
     fprintf(stderr, "FATAL ERROR: Cannot execute program. Panic!\n");
     exit(RET_INTERNAL_ERROR);
   }
+
+  ret = WEXITSTATUS(ret);
   if (ret == RET_TIMELIMIT_EXCEEDED){
     print_exit_message(RET_TIMELIMIT_EXCEEDED);
     exit(RET_TIMELIMIT_EXCEEDED);
@@ -102,7 +106,7 @@ int main(int argc, char * argv[]){
     fprintf(stderr, "FATAL ERROR: Cannot compare files. Panic!\n");
     exit(RET_INTERNAL_ERROR);
   }
-
+  ret = WEXITSTATUS(ret);
   if(ret == 0){
     print_exit_message(RET_ACCEPTED);
     exit(RET_ACCEPTED);
@@ -116,7 +120,7 @@ int main(int argc, char * argv[]){
     fprintf(stderr, "FATAL ERROR: Cannot compare files. Panic!\n");
     exit(RET_INTERNAL_ERROR);
   }
-
+  ret = WEXITSTATUS(ret);
   if(ret == 0){
     print_exit_message(RET_PRESENTATION_ERROR);
     exit(RET_PRESENTATION_ERROR);

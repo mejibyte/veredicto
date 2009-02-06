@@ -9,11 +9,7 @@
 #include <sys/param.h>
 
 /* Return codes */
-#define RET_SUCCESS 0
-#define RET_TIMELIMIT_EXCEEDED 1
-#define RET_RUNTIME_ERROR 2
-#define RET_INTERNAL_ERROR 3
-
+enum { RET_SUCCESS, RET_TIMELIMIT_EXCEEDED, RET_RUNTIME_ERROR, RET_INTERNAL_ERROR };
 char input_file[MAXPATHLEN], output_file[MAXPATHLEN];
 int timelimit = 5, children_pid;
 
