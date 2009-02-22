@@ -85,9 +85,9 @@ int main(int argc, char * argv[]){
 
     //atender_solicitud
     thread_parameters[i].run_id = i;
-    memcpy(thread_parameters[i].input, input, sizeof(thread_parameters[i].input));
-    memcpy(thread_parameters[i].output, output, sizeof(thread_parameters[i].output));
-    memcpy(thread_parameters[i].source, source, sizeof(thread_parameters[i].source));
+    memcpy(thread_parameters[i].input, input, strlen(input) + 1);
+    memcpy(thread_parameters[i].output, output, strlen(output) + 1);
+    memcpy(thread_parameters[i].source, source, strlen(source) + 1);
     int error_code = pthread_create(&thread_ids[i], NULL, thread_main, (void *) &thread_parameters[i]);
     //pthread_detach(thread_ids[i]); /* Create a detached thread, so its memory is freed as soon as it ends */
     //printf("Thread number %d has id = %lu. pthread_create returned %d\n", i, thread_ids[i], error_code);
